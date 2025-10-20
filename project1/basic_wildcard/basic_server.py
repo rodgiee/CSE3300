@@ -37,8 +37,8 @@ def dictionary_match(query, dictionary):
     for word in dictionary:
         if is_wildcard_match(query, word): matches_str += word + '\n'
     return matches_str
+
 def tcp_server():
-    
     # convert dictionary file to a list
     english_dictionary = file_to_list('wordlist.txt')
 
