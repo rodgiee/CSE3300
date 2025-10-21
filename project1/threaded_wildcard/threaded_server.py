@@ -44,6 +44,12 @@ def dictionary_match(query, dictionary):
         if is_wildcard_match(query, word): matches_str += word + '\n'
     return matches_str
 
+'''
+Client thread functionn to:
+    1. decode client data
+    2. find wildcard matches
+    3. encode and send back to client wildcard matches
+'''
 def client_handler(connection_socket, addr):
     # ex. 127.0.0.1:12345
     client_address = str(addr[0]) + ':' + str(addr[1])
@@ -55,10 +61,13 @@ def client_handler(connection_socket, addr):
     query_matches = dictionary_match(sentence, english_dictionary)
     connection_socket.send(query_matches.encode('utf-8'))
 
-    print(f"📩Message sent to {client_address}")
     connection_socket.close()
     print(f"⛓️‍💥Connection closed with {client_address}")
 
+'''
+Main function of TCP server, define the server socket and listen for incoming TCP connection requests.
+Only accept up to 5 connections at a time and redirect client connections to client thread handlers.
+'''
 def tcp_server():
 
     # define and bind socket
@@ -71,9 +80,9 @@ def tcp_server():
 
     print("👂Wildcard Server is Listening...")
 
+    # constantly listen for any new TCP connection requests
     while 1:
         connection_socket, addr = server_socket.accept()
-        #client_handler(connection_socket, addr)
         thread.start_new_thread(client_handler, (connection_socket, addr))
 
 

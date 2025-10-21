@@ -17,7 +17,6 @@ def tcp_client():
     server_port = 12000
     client_socket = socket(AF_INET, SOCK_STREAM)
 
-    
     # Check if server is open
     try:
         client_socket.connect((server_name,server_port)) 
@@ -28,18 +27,21 @@ def tcp_client():
 
     # collect input and send
     # ensure lowercase and strip of excess white space
-    sentence = input("send message: ").lower().strip()
-    client_socket.send(sentence.encode())
-
-    reply  = client_socket.recv(1024).decode('utf-8')
-    if len(reply):
-        print('HTTP 200 OK')
-        print (f"From Wildcard Server, matches for '{sentence}' include:")
-        print(reply)
+    sentence = input("send message (or 'quit'): ").lower().strip()
+    if sentence == 'quit':
+        client_socket.close()
     else:
-        print('HTTP 204 No Content')
+        client_socket.send(sentence.encode())
 
-    client_socket.close()
+        reply  = client_socket.recv(1024).decode('utf-8')
+        if len(reply):
+            print('HTTP 200 OK')
+            print (f"From Wildcard Server, matches for '{sentence}' include:")
+            print(reply)
+        else:
+            print('HTTP 204 No Content')
+
+        client_socket.close()
 
 if __name__ == '__main__':
     tcp_client()
