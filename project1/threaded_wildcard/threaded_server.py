@@ -1,4 +1,5 @@
 from socket import *
+import _thread as thread
 
 '''
 Using open() extract each line of the provided dictionary and return as a list of strings.
@@ -10,6 +11,11 @@ def file_to_list(txt_file):
         for line in f:
             txt_list.append(line.rstrip('\n'))
     return txt_list
+
+
+
+# convert dictionary file to a list
+english_dictionary = file_to_list('wordlist.txt')
 
 '''
 For wildcard matching, we know a word matches if characters in both words:
@@ -38,35 +44,38 @@ def dictionary_match(query, dictionary):
         if is_wildcard_match(query, word): matches_str += word + '\n'
     return matches_str
 
+def client_handler(connection_socket, addr):
+    # ex. 127.0.0.1:12345
+    client_address = str(addr[0]) + ':' + str(addr[1])
+
+    print(f"🔗Connection established with {client_address}")
+    
+    # convert byte data into string data
+    sentence = connection_socket.recv(1024).decode('utf-8')
+    query_matches = dictionary_match(sentence, english_dictionary)
+    connection_socket.send(query_matches.encode('utf-8'))
+
+    print(f"📩Message sent to {client_address}")
+    connection_socket.close()
+    print(f"⛓️‍💥Connection closed with {client_address}")
+
 def tcp_server():
-    # convert dictionary file to a list
-    english_dictionary = file_to_list('wordlist.txt')
 
     # define and bind socket
     server_port = 12000
     server_socket = socket(AF_INET,SOCK_STREAM)
     server_socket.bind(("",server_port))
 
-    server_socket.listen(1)
+    # ONLY ACCEPT 5 CONNECTIONS
+    server_socket.listen(5)
 
     print("👂Wildcard Server is Listening...")
 
     while 1:
-        connectionSocket, addr = server_socket.accept()
+        connection_socket, addr = server_socket.accept()
+        #client_handler(connection_socket, addr)
+        thread.start_new_thread(client_handler, (connection_socket, addr))
 
-        # ex. 127.0.0.1:12345
-        client_address = str(addr[0]) + ':' + str(addr[1])
-
-        print(f"🔗Connection established with {client_address}")
-        
-        # convert byte data into string data
-        sentence = connectionSocket.recv(1024).decode('utf-8')
-        query_matches = dictionary_match(sentence, english_dictionary)
-        connectionSocket.send(query_matches.encode('utf-8'))
-
-        print(f"📩Message sent to {client_address}")
-        connectionSocket.close()
-        print(f"⛓️‍💥Connection closed with {client_address}")
 
 if __name__ == '__main__':
     tcp_server()
