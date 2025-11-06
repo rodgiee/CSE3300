@@ -47,6 +47,25 @@ class Final (object):
     # This binds our PacketIn event listener
     connection.addListeners(self)
 
+  def send_out(self, packet, packet_in, port):
+    msg = of.ofp_flow_mod()
+    msg.match = of.ofp_match.from_packet(packet)
+    msg.idle_timeout = 30
+    msg.hard_timeout = 30
+
+    msg.actions.append(of.ofp_action_output(port = port))
+    msg.data = packet_in
+    self.connection.send(msg)
+
+  def send_drop (self, packet, packet_in):
+    msg = of.ofp_flow_mod()
+    msg.match = of.ofp_match.from_packet(packet)
+    msg.idle_timeout = 30
+    msg.hard_timeout = 30
+    msg.data = packet_in
+    self.connection.send(msg)
+    return
+
   def do_final (self, packet, packet_in, port_on_switch, switch_id):
     # This is where you'll put your code. 
     #   - port_on_switch: represents the port that the packet was received on.
@@ -102,18 +121,6 @@ class Final (object):
       else:
         self.send_out(packet, packet_in, 2)
       return
-
-
-
-  def send_out(self, packet, packet_in, port):
-    msg = of.ofp_flow_mod()
-    msg.match = of.ofp_match.from_packet(packet)
-    msg.idle_timeout = 30
-    msg.hard_timeout = 30
-
-    msg.actions.append(of.ofp_action_output(port = port))
-    msg.data = packet_in
-    self.connection.send(msg)
 
   def _handle_PacketIn (self, event):
     """
