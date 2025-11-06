@@ -71,6 +71,9 @@ class final_topo(Topo):
 
 def configure():
     topo = final_topo()
+    
+    # error with remote controller not being found
+    # needed to rewrite net based on practice
     net = Mininet(topo=topo, controller=RemoteController('c0', ip='127.0.0.1', port=6633), switch=OVSSwitch)
     net.start()
 

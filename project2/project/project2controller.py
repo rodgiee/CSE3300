@@ -47,6 +47,7 @@ class Final (object):
     # This binds our PacketIn event listener
     connection.addListeners(self)
 
+  # packet routing for switch in data plane
   def send_out(self, packet, packet_in, port):
     msg = of.ofp_flow_mod()
     msg.match = of.ofp_match.from_packet(packet)
@@ -57,6 +58,7 @@ class Final (object):
     msg.data = packet_in
     self.connection.send(msg)
 
+  # dropping packets for switch in data plane
   def send_drop (self, packet, packet_in):
     msg = of.ofp_flow_mod()
     msg.match = of.ofp_match.from_packet(packet)
@@ -74,13 +76,19 @@ class Final (object):
     # You should use these to determine where a packet came from. To figure out where a packet 
     # is going, you can use the IP header information.
 
-    ip = packet.find('ipv4')
+    ip = packet.find('ipv4') # get ip header information
+
+    # use ipv6 instead if no ipv4
+    # broadcast any traffic that is not ipv4 or ipv6
     if ip is None:
       ipv2 = packet.find('ipv6')
       if ipv2 is None:
         self.send_out(packet, packet_in, of.OFPP_FLOOD)
       return
 
+    # s1 switch
+    # 1 -->  h1
+    # 2 -->  s4
     if switch_id == 1:
       if ip.dstip == '10.1.1.10':
         self.send_out(packet, packet_in, 1)
@@ -88,6 +96,9 @@ class Final (object):
         self.send_out(packet, packet_in, 2)
       return
 
+    # s2 switch
+    # 1 -->  h2
+    # 2 -->  s4
     elif switch_id == 2:
       if ip.dstip == '10.2.2.20':
         self.send_out(packet, packet_in, 1)
@@ -95,6 +106,9 @@ class Final (object):
         self.send_out(packet, packet_in, 2)
       return
 
+    # s3 switch
+    # 1 -->  h3
+    # 2 -->  s4
     elif switch_id == 3:
       if ip.dstip == '10.3.3.30':
         self.send_out(packet, packet_in, 1)
@@ -102,7 +116,16 @@ class Final (object):
         self.send_out(packet, packet_in, 2)
       return
 
+    # s4 switch
+    # 1 -->  h4
+    # 2 -->  s1
+    # 3 -->  s2
+    # 4 -->  s3
+    # 5 -->  s5
     elif switch_id == 4:
+      # drop packets where either:
+      #     source is from untrusted (h4) and its intended destination is server (h5)
+      #     ICMP traffic from untrusted (h4)
       icmp = packet.find('icmp')
       if ip.srcip=='123.45.67.89' and ((icmp is not None) or (ip.dstip == '10.5.5.50')):
         self.send_drop(packet, packet_in)
@@ -118,6 +141,9 @@ class Final (object):
         self.send_out(packet, packet_in, 5)
       return
 
+    # s5 switch
+    # 1 -->  h5
+    # 2 -->  s4
     elif switch_id == 5:
       if ip.dstip == '10.5.5.50':
         self.send_out(packet, packet_in, 1)
