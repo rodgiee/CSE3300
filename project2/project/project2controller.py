@@ -81,7 +81,9 @@ class Final (object):
     elif switch_id == 4:
       if ip.dstip == '1.1.1.10':
         self.send_out(packet, packet_in, 2)
-        return
+      else:
+        self.send_out(packet, packet_in, of.OFPP_FLOOD)
+      return
 
 
 
