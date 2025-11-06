@@ -61,10 +61,28 @@ class Final (object):
       if ipv2 is None:
         self.send_out(packet, packet_in, of.OFPP_FLOOD)
       return
+
     if switch_id == 1:
       if ip.dstip == '1.1.1.10':
         self.send_out(packet, packet_in, 1)
         return
+      else:
+        self.send_out(packet, packet_in, 2)
+        return
+
+    elif switch_id == 2:
+      if ip.dstip == '10.2.2.20':
+        self.send_out(packet, packet_in, 1)
+        return
+      else:
+        self.send_out(packet, packet_in, 2)
+        return
+
+    elif switch_id == 4:
+      if ip.dstip == '1.1.1.10':
+        self.send_out(packet, packet_in, 2)
+        return
+
 
 
   def send_out(self, packet, packet_in, port):
