@@ -92,6 +92,8 @@ class Final (object):
         self.send_out(packet, packet_in, 3)
       elif ip.dstip == '10.3.3.30':
         self.send_out(packet, packet_in, 4)
+      elif ip.dstip == '10.5.5.50':
+        self.send_out(packet, packet_in, 5)
       return
 
     elif switch_id == 5:
