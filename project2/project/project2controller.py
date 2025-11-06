@@ -82,7 +82,7 @@ class Final (object):
       if ip.dstip == '10.1.1.10':
         self.send_out(packet, packet_in, 2)
       elif ip.dstip == '10.2.2.20':
-        self.send_out(packet, packet_in, 2)
+        self.send_out(packet, packet_in, 3)
       else:
         self.send_out(packet, packet_in, of.OFPP_FLOOD)
       return
