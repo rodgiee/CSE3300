@@ -47,7 +47,7 @@ class Final (object):
     # This binds our PacketIn event listener
     connection.addListeners(self)
 
-	def do_final (self, packet, packet_in, port_on_switch, switch_id):
+  def do_final (self, packet, packet_in, port_on_switch, switch_id):
     # This is where you'll put your code. 
     #   - port_on_switch: represents the port that the packet was received on.
     #   - switch_id represents the id of the switch that received the packet.
@@ -55,22 +55,27 @@ class Final (object):
     # You should use these to determine where a packet came from. To figure out where a packet 
     # is going, you can use the IP header information.
 
-	  ip = packet.find('ipv4')
-	  if switch_id == 1:
-		  if ip.dstip == '1.1.1.10':
-			self.send_out(packet, packet_in, 1)
-			return
+    ip = packet.find('ipv4')
+    if ip is None:
+      ipv2 = packet.find('ipv6')
+      if ipv2 is None:
+        self.send_out(packet, packet_in, of.OFPP_FLOOD)
+      return
+    if switch_id == 1:
+      if ip.dstip == '1.1.1.10':
+        self.send_out(packet, packet_in, 1)
+        return
 
 
   def send_out(self, packet, packet_in, port):
-	msg = of.ofp_flow_mod()
-	msg.match = of.ofp_match.from_packet(packet)
-	msg.idle_timeout = 30
-	msg.hard_timeout = 30
+    msg = of.ofp_flow_mod()
+    msg.match = of.ofp_match.from_packet(packet)
+    msg.idle_timeout = 30
+    msg.hard_timeout = 30
 
-	msg.actions.append(of.ofp_action_output(port = port))
-	msg.data = packet_in
-	self.connection.send(msg)
+    msg.actions.append(of.ofp_action_output(port = port))
+    msg.data = packet_in
+    self.connection.send(msg)
 
   def _handle_PacketIn (self, event):
     """
