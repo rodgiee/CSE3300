@@ -103,7 +103,11 @@ class Final (object):
       return
 
     elif switch_id == 4:
-      if ip.dstip == '123.45.67.89':
+      icmp = packet.find('icmp')
+      if ip.srcip=='123.45.67.89':
+        if (icmp is not None) or (ip.dstip == '10.5.5.50'):
+          self.send_drop(packet, packet_in)
+      elif ip.dstip == '123.45.67.89':
         self.send_out(packet, packet_in, 1)
       elif ip.dstip == '10.1.1.10':
         self.send_out(packet, packet_in, 2)
