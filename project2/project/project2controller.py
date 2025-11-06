@@ -65,26 +65,31 @@ class Final (object):
     if switch_id == 1:
       if ip.dstip == '10.1.1.10':
         self.send_out(packet, packet_in, 1)
-        return
       else:
         self.send_out(packet, packet_in, 2)
-        return
+      return
 
     elif switch_id == 2:
       if ip.dstip == '10.2.2.20':
         self.send_out(packet, packet_in, 1)
-        return
       else:
         self.send_out(packet, packet_in, 2)
-        return
+      return
+
+    elif switch_id == 3:
+      if ip.dstip == '10.3.3.30':
+        self.send_out(packet, packet_in, 1)
+      else:
+        self.send_out(packet, packet_in, 2)
+      return
 
     elif switch_id == 4:
       if ip.dstip == '10.1.1.10':
         self.send_out(packet, packet_in, 2)
       elif ip.dstip == '10.2.2.20':
         self.send_out(packet, packet_in, 3)
-      else:
-        self.send_out(packet, packet_in, of.OFPP_FLOOD)
+      elif ip.dstip == '10.3.3.30':
+        self.send_out(packet, packet_in, 4)
       return
 
 
